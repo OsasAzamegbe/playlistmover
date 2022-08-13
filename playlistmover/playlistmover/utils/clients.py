@@ -47,7 +47,9 @@ class Spotify:
         playlist2 = Playlist("Afro beats", songs)
         return [playlist, playlist2]
 
-    def create_playlists(self, request, playlists: PlaylistSerializer) -> List[Dict[str, Any]]:
+    def create_playlists(
+        self, request, playlists: PlaylistSerializer
+    ) -> List[Dict[str, Any]]:
         """
         Create list of playlists on Spotify account
         """
