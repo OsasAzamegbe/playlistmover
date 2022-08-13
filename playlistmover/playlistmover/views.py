@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 
 class PlaylistApiView(APIView):
     """
-    API View to manage retrieving and creating playlists from 
+    API View to manage retrieving and creating playlists from
     third-party music platforms for the caller.
-    
+
     Authentication and Permissions are not required at this time.
     """
 
