@@ -1,4 +1,4 @@
 [MASTER]
 disable=
     C0114, # missing-module-docstring
-    W0611, # unused-import
+    W, # Warnings

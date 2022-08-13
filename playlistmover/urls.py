@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from playlistmover.playlistmover.views import PlaylistApiView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/playlists", PlaylistApiView.as_view(), name="playilsts"),
 ]
