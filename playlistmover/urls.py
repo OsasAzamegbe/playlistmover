@@ -14,11 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from playlistmover.playlistmover.views import PlaylistApiView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/playlists", PlaylistApiView.as_view(), name="playilsts"),
-    path("api/auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
