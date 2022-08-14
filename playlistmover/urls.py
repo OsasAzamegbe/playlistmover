@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from playlistmover.playlistmover.views import PlaylistApiView
+from playlistmover.playlistmover.views import PlaylistApiView, AuthorizationRedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/playlists", PlaylistApiView.as_view(), name="playilsts"),
+    path("api/auth", AuthorizationRedirectView.as_view(), name="auth-redirect"),
 ]

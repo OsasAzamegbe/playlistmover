@@ -1,3 +1,5 @@
+from django.http import HttpResponseBadRequest
+from django.shortcuts import redirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from playlistmover.playlistmover.clients_enums import ClientEnum
@@ -39,3 +41,20 @@ class PlaylistApiView(APIView):
             created_playists = music_client.create_playlists(request_data, playlists)
             return Response({"success": True, "playlists": created_playists})
         return Response({"success": False, "playlists": []})
+
+
+class AuthorizationRedirectView(APIView):
+    """
+    API View for providing authentication to the third-party music platform.
+    """
+
+    def get(self, request, format=None):
+        """
+        Initiate authentication and redirect
+        """
+        platform: ClientEnum = request.query_params.get("platform")
+        if platform:
+            music_client = Client.get_client(platform)
+            url = music_client.setup_auth()
+            return redirect(url)
+        return HttpResponseBadRequest({"error": "platform query parameter not specified"})
