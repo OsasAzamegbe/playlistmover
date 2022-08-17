@@ -12,7 +12,7 @@ class Song:
     """
 
     title: str
-    artist: str
+    artists: List[str]
 
 
 @dataclass
