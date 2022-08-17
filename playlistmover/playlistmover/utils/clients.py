@@ -67,7 +67,6 @@ class SpotifyClient(Client):
         """
         Parse the `id` from a spotify uri of the form spotify:type:id
         """
-
         return uri.split(":")[-1]
 
     def get_playlists(self, context: Dict[str, str]) -> List[Playlist]:
