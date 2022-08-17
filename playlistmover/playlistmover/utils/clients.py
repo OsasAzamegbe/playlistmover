@@ -1,5 +1,4 @@
 import os
-from pydoc import cli
 from typing import Any, Dict, List, Optional
 import requests
 from requests.models import PreparedRequest
