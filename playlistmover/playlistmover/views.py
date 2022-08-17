@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from playlistmover.playlistmover.clients_enums import ClientEnum
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.clients import Client, SpotifyClient
+from playlistmover.playlistmover.utils.clients import Client
+
+from playlistmover.playlistmover.serializers import PlaylistSerializer
 
 
 class PlaylistApiView(APIView):
@@ -55,6 +57,8 @@ class AuthorizationRedirectView(APIView):
         platform: ClientEnum = request.query_params.get("platform")
         if platform:
             music_client = Client.get_client(platform)
-            url = music_client.setup_auth()
+            url = music_client.get_authorization_url()
             return redirect(url)
-        return HttpResponseBadRequest({"error": "platform query parameter not specified"})
+        return HttpResponseBadRequest(
+            {"error": "platform query parameter not specified"}
+        )

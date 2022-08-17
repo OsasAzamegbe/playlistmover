@@ -10,7 +10,7 @@ class SongSerializer(serializers.Serializer):
     """
 
     title = serializers.CharField(max_length=200)
-    artist = serializers.CharField(max_length=200)
+    artists = serializers.ListField(child=serializers.CharField(max_length=200))
 
 
 class PlaylistSerializer(serializers.Serializer):
