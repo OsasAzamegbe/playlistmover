@@ -9,9 +9,7 @@ from playlistmover.playlistmover.utils.clients import Client
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
 
-from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.clients import Spotify
 
 
 class PlaylistApiView(APIView):
