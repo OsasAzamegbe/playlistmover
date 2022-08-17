@@ -38,8 +38,6 @@ class PlaylistApiView(APIView):
                     {"success": True, "playlists": serialised_playlist.data}
                 )
             raise BadRequestException("platform query parameter not specified")
-        except KeyError as e:
-            return get_exception_response(BadRequestException(str(e)))
         except Exception as exception:
             return get_exception_response(exception)
 
@@ -60,8 +58,6 @@ class PlaylistApiView(APIView):
                 )
                 return Response({"success": True, "playlists": created_playists})
             raise BadRequestException("`playlists` object in request is invalid")
-        except KeyError as e:
-            return get_exception_response(BadRequestException(str(e)))
         except Exception as exception:
             return get_exception_response(exception)
 
@@ -82,7 +78,5 @@ class AuthorizationRedirectView(APIView):
                 url = music_client.get_authorization_url()
                 return redirect(url)
             raise BadRequestException("platform query parameter not specified")
-        except KeyError as e:
-            return get_exception_response(BadRequestException(str(e)))
         except Exception as exception:
             return get_exception_response(exception)
