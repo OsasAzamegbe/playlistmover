@@ -28,7 +28,9 @@ class Client:
         """
         Send HTTP GET request to API endpoint
         """
-        return requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers)
+        return requests.get(
+            "{}{}".format(self.base_url, endpoint), params=params, headers=headers
+        )
 
     def send_post_request(
         self,
@@ -87,7 +89,9 @@ class SpotifyClient(Client):
         ]
         return playlists
 
-    def create_playlists(self, request, playlists: PlaylistSerializer) -> List[Dict[str, Any]]:
+    def create_playlists(
+        self, request, playlists: PlaylistSerializer
+    ) -> List[Dict[str, Any]]:
         """
         Create list of playlists on Spotify account
         """
@@ -156,7 +160,9 @@ class SpotifyClient(Client):
         Retrieve user_id from profile of Spotify user
         """
 
-        response = self.send_get_request("https://api.spotify.com/v1/me", headers=self.headers)
+        response = self.send_get_request(
+            "https://api.spotify.com/v1/me", headers=self.headers
+        )
         user_id = self._get_id_from_uri(response.json()["uri"])
         return user_id
 
