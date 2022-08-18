@@ -2,10 +2,12 @@ import os
 from typing import Any, Dict, List, Optional
 import requests
 from requests.models import PreparedRequest
+from rest_framework.status import HTTP_200_OK
 
 from playlistmover.playlistmover.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
+from playlistmover.playlistmover.utils.exceptions import UnauthorizedException
 from playlistmover.playlistmover.utils.utils import encode_string_base64
 
 
@@ -26,9 +28,7 @@ class Client:
         """
         Send HTTP GET request to API endpoint
         """
-        return requests.get(
-            "{}{}".format(self.base_url, endpoint), params=params, headers=headers
-        )
+        return requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers)
 
     def send_post_request(
         self,
@@ -87,9 +87,7 @@ class SpotifyClient(Client):
         ]
         return playlists
 
-    def create_playlists(
-        self, request, playlists: PlaylistSerializer
-    ) -> List[Dict[str, Any]]:
+    def create_playlists(self, request, playlists: PlaylistSerializer) -> List[Dict[str, Any]]:
         """
         Create list of playlists on Spotify account
         """
@@ -122,7 +120,8 @@ class SpotifyClient(Client):
         code = context["code"]
         state = context["state"]
         endpoint = "https://accounts.spotify.com/api/token"
-        assert state == self.state
+        if state != self.state:
+            raise UnauthorizedException("User is unauthorized.")
         client_id = os.getenv("SPOTIFY_CLIENT_ID")
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         encoded_secret = encode_string_base64("{}:{}".format(client_id, client_secret))
@@ -138,6 +137,13 @@ class SpotifyClient(Client):
         }
         response = self.send_post_request(endpoint, request_data, headers)
         response_json = response.json()
+
+        if (
+            response.status_code != HTTP_200_OK
+            or "access_token" not in response_json
+            or "refresh_token" not in response_json
+        ):
+            raise UnauthorizedException("User is unauthorized.")
         self.access_token = response_json["access_token"]
         self.refresh_token = response_json["refresh_token"]
         self.headers = {
@@ -150,9 +156,7 @@ class SpotifyClient(Client):
         Retrieve user_id from profile of Spotify user
         """
 
-        response = self.send_get_request(
-            "https://api.spotify.com/v1/me", headers=self.headers
-        )
+        response = self.send_get_request("https://api.spotify.com/v1/me", headers=self.headers)
         user_id = self._get_id_from_uri(response.json()["uri"])
         return user_id
 

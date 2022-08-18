@@ -1,9 +1,13 @@
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED
 
 
 class BadRequestException(Exception):
     """Bad Request data"""
+
+
+class UnauthorizedException(Exception):
+    """Authorization failed"""
 
 
 class InternalServerException(Exception):
@@ -17,6 +21,8 @@ def get_exception_response(exception: Exception):
     response = Response({"success": False, "error": str(exception)})
     if isinstance(exception, BadRequestException):
         response.status_code = HTTP_400_BAD_REQUEST
+    elif isinstance(exception, UnauthorizedException):
+        response.status_code = HTTP_401_UNAUTHORIZED
     else:
         response.status_code = HTTP_500_INTERNAL_SERVER_ERROR
     return response
