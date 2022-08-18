@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from playlistmover.playlistmover.clients_enums import ClientEnum
+from playlistmover.playlistmover.utils.clients_enums import ClientEnum
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
 from playlistmover.playlistmover.utils.clients import Client
@@ -13,6 +13,7 @@ from playlistmover.playlistmover.utils.exceptions import (
     BadRequestException,
     get_exception_response,
 )
+from playlistmover.playlistmover.utils.validator import request_validator
 
 
 class PlaylistApiView(APIView):
@@ -21,24 +22,22 @@ class PlaylistApiView(APIView):
     third-party music platforms for the caller.
     """
 
+    @request_validator("getPlaylists")
     def get(self, request, format=None):
         """
         Returns List of playlists from account and platform specified in the request.
         """
         try:
             query_params = request.query_params
-            platform: ClientEnum = query_params.get("platform")
-            if platform:
-                music_client = Client.get_client(platform)
-                playlists = music_client.get_playlists(query_params)
-                serialised_playlist = PlaylistSerializer(playlists, many=True)
-                return Response(
-                    {"success": True, "playlists": serialised_playlist.data}
-                )
-            raise BadRequestException("platform query parameter not specified")
+            platform: ClientEnum = query_params["platform"]
+            music_client = Client.get_client(platform)
+            playlists = music_client.get_playlists(query_params)
+            serialised_playlist = PlaylistSerializer(playlists, many=True)
+            return Response({"success": True, "playlists": serialised_playlist.data})
         except Exception as exception:
             return get_exception_response(exception)
 
+    @request_validator("postPlaylists")
     def post(self, request, format=None):
         """
         Creates List of playlists on account and platform specified in the request.
@@ -48,9 +47,7 @@ class PlaylistApiView(APIView):
             playlists_data = request_data["playlists"]
             playlists = PlaylistSerializer(data=playlists_data, many=True)
             if playlists.is_valid():
-                music_client = Client.get_client(
-                    request_data["context"]["platformEnum"]
-                )
+                music_client = Client.get_client(request_data["context"]["platform"])
                 created_playists = music_client.create_playlists(
                     request_data, playlists
                 )
@@ -65,16 +62,15 @@ class AuthorizationRedirectView(APIView):
     API View for providing authentication to the third-party music platform.
     """
 
+    @request_validator("getAuth")
     def get(self, request, format=None):
         """
         Initiate authentication and redirect
         """
         try:
-            platform: ClientEnum = request.query_params.get("platform")
-            if platform:
-                music_client = Client.get_client(platform)
-                url = music_client.get_authorization_url()
-                return redirect(url)
-            raise BadRequestException("platform query parameter not specified")
+            platform: ClientEnum = request.query_params["platform"]
+            music_client = Client.get_client(platform)
+            url = music_client.get_authorization_url()
+            return redirect(url)
         except Exception as exception:
             return get_exception_response(exception)

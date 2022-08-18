@@ -4,7 +4,7 @@ import requests
 from requests.models import PreparedRequest
 from rest_framework.status import HTTP_200_OK
 
-from playlistmover.playlistmover.clients_enums import ClientEnum
+from playlistmover.playlistmover.utils.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
 from playlistmover.playlistmover.utils.exceptions import UnauthorizedException
