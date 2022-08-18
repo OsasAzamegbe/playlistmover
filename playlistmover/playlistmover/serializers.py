@@ -22,6 +22,6 @@ class PlaylistSerializer(serializers.Serializer):
     songs = SongSerializer(many=True)
 
     def create(self, validated_data):
-        songs: List[Song] = validated_data.get("songs")
+        songs: List[Song] = validated_data["songs"]
         songs = [Song(**song) for song in songs]
         return Playlist(title=validated_data["title"], songs=songs)

@@ -2,10 +2,12 @@ import os
 from typing import Any, Dict, List, Optional
 import requests
 from requests.models import PreparedRequest
+from rest_framework.status import HTTP_200_OK
 
-from playlistmover.playlistmover.clients_enums import ClientEnum
+from playlistmover.playlistmover.utils.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
+from playlistmover.playlistmover.utils.exceptions import UnauthorizedException
 from playlistmover.playlistmover.utils.utils import encode_string_base64
 
 
@@ -122,7 +124,8 @@ class SpotifyClient(Client):
         code = context["code"]
         state = context["state"]
         endpoint = "https://accounts.spotify.com/api/token"
-        assert state == self.state
+        if state != self.state:
+            raise UnauthorizedException("User is unauthorized.")
         client_id = os.getenv("SPOTIFY_CLIENT_ID")
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         encoded_secret = encode_string_base64("{}:{}".format(client_id, client_secret))
@@ -138,6 +141,13 @@ class SpotifyClient(Client):
         }
         response = self.send_post_request(endpoint, request_data, headers)
         response_json = response.json()
+
+        if (
+            response.status_code != HTTP_200_OK
+            or "access_token" not in response_json
+            or "refresh_token" not in response_json
+        ):
+            raise UnauthorizedException("User is unauthorized.")
         self.access_token = response_json["access_token"]
         self.refresh_token = response_json["refresh_token"]
         self.headers = {
