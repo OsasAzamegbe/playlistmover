@@ -19,6 +19,6 @@ from playlistmover.playlistmover.views import PlaylistApiView, AuthorizationRedi
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/playlists", PlaylistApiView.as_view(), name="playilsts"),
+    path("api/playlists", PlaylistApiView.as_view(), name="playlists"),
     path("api/auth", AuthorizationRedirectView.as_view(), name="auth-redirect"),
 ]
