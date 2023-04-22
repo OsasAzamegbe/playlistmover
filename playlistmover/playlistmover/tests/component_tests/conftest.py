@@ -34,7 +34,9 @@ def mock_requests_post(url, data, headers, *args, **kwargs):
 
 @pytest.fixture
 def mock_requests_module():
-    with mock.patch("playlistmover.playlistmover.utils.clients.requests") as mock_requests:
+    with mock.patch(
+        "playlistmover.playlistmover.utils.clients.requests"
+    ) as mock_requests:
         mock_requests.get.side_effect = mock_requests_get
         mock_requests.post.side_effect = mock_requests_post
         yield mock_requests
