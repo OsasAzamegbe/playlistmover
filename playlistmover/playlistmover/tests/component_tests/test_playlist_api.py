@@ -5,6 +5,8 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from playlistmover.playlistmover.tests.component_tests.conftest import CODE, STATE
+
 
 @pytest.mark.parametrize(
     "missing_params,query_params",
@@ -45,22 +47,39 @@ def test_get_playlist_with_invalid_platform(api_client):
 
 
 @pytest.mark.parametrize(
-    "code,state",
+    "query_code,query_state",
     (
         ("DummyCode", "Dummystate"),
         ("DummyCode", "123456789abcdefg"),
     ),
 )
-def test_get_playlist_with_invalid_auth(api_client, code, state):
+def test_get_playlist_with_invalid_auth(api_client, mock_requests_module, query_code, query_state):
     """Test error response when auth is invalid"""
-    query_params = {"platform": "SPOTIFY", "code": code, "state": state}
+    query_params = {"platform": "SPOTIFY", "code": query_code, "state": query_state}
     url = reverse("playlists")
     expected_response = {
         "success": False,
         "error": "User is unauthorized.",
     }
 
-    response = api_client.get(url, data=query_params, format="json")
+    with mock_requests_module:
+        response = api_client.get(url, data=query_params, format="json")
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == expected_response
+
+
+def test_get_playlist_passes(api_client, mock_requests_module):
+    """Test successful response when playlists API is called correctly."""
+    query_params = {"platform": "SPOTIFY", "code": CODE, "state": STATE}
+    url = reverse("playlists")
+    expected_response = {
+        "success": True,
+        "playlists": [],
+    }
+
+    with mock_requests_module:
+        response = api_client.get(url, data=query_params, format="json")
+
+    assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected_response
