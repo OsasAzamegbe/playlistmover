@@ -1,19 +1,19 @@
 from django.shortcuts import redirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from playlistmover.playlistmover.utils.clients_enums import ClientEnum
+from playlistmover.playlistmover.logic.clients_enums import ClientEnum
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.clients import Client
+from playlistmover.playlistmover.logic.clients import Client
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
 
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.exceptions import (
+from playlistmover.playlistmover.logic.exceptions import (
     BadRequestException,
     get_exception_response,
 )
-from playlistmover.playlistmover.utils.validator import request_validator
+from playlistmover.playlistmover.logic.validator import request_validator
 
 
 class PlaylistApiView(APIView):

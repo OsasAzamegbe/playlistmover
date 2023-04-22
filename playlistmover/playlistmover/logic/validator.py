@@ -1,7 +1,7 @@
 import functools
 from typing import Any, Dict, List
 
-from playlistmover.playlistmover.utils.exceptions import (
+from playlistmover.playlistmover.logic.exceptions import (
     BadRequestException,
     get_exception_response,
 )

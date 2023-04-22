@@ -4,14 +4,14 @@ import requests
 from requests.models import PreparedRequest
 from rest_framework.status import HTTP_200_OK
 
-from playlistmover.playlistmover.utils.clients_enums import ClientEnum
+from playlistmover.playlistmover.logic.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.exceptions import (
+from playlistmover.playlistmover.logic.exceptions import (
     BadRequestException,
     UnauthorizedException,
 )
-from playlistmover.playlistmover.utils.utils import encode_string_base64
+from playlistmover.playlistmover.logic.utils import encode_string_base64
 
 
 class Client:
