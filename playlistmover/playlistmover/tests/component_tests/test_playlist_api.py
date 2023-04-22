@@ -8,6 +8,11 @@ from rest_framework import status
 from playlistmover.playlistmover.tests.component_tests.conftest import CODE, STATE
 
 
+def test_blank():
+    """No-op test"""
+    assert True
+
+
 # @pytest.mark.parametrize(
 #     "missing_params,query_params",
 #     (
