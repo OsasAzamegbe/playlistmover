@@ -7,7 +7,10 @@ from rest_framework.status import HTTP_200_OK
 from playlistmover.playlistmover.utils.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.exceptions import UnauthorizedException
+from playlistmover.playlistmover.utils.exceptions import (
+    BadRequestException,
+    UnauthorizedException,
+)
 from playlistmover.playlistmover.utils.utils import encode_string_base64
 
 
@@ -52,7 +55,7 @@ class Client:
         """
         if client_enum == ClientEnum.SPOTIFY:
             return SpotifyClient()
-        raise Exception("{} not supported".format(client_enum))
+        raise BadRequestException("`{}` not supported.".format(client_enum))
 
 
 class SpotifyClient(Client):
