@@ -13,8 +13,9 @@ class ClientEnum(str, Enum):
     @classmethod
     def _missing_(cls, value):
         if not isinstance(value, str):
-            return
+            raise ValueError(value)
 
         for member in cls:
             if member.name.upper() == value.upper():
                 return member
+        raise ValueError(value)
