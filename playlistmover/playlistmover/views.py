@@ -50,7 +50,9 @@ class PlaylistApiView(APIView):
             if playlists.is_valid():
                 platform = ClientEnum(request_data["context"]["platform"])
                 music_client = Client.get_client(platform)
-                created_playists = music_client.create_playlists(request_data, playlists)
+                created_playists = music_client.create_playlists(
+                    request_data, playlists
+                )
                 return Response({"success": True, "playlists": created_playists})
             raise BadRequestException("`playlists` object in request is invalid")
         except Exception as exception:

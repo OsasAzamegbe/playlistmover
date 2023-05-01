@@ -41,7 +41,9 @@ def request_validator(request_name: str):
             invalid_fields: str = is_valid_request(request_name, request)
             if invalid_fields:
                 return get_exception_response(
-                    BadRequestException("`{}` in request is invalid.".format(invalid_fields))
+                    BadRequestException(
+                        "`{}` in request is invalid.".format(invalid_fields)
+                    )
                 )
             return view_handler(self, request, *args, **kwargs)
 
