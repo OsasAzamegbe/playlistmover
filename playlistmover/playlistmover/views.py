@@ -29,9 +29,10 @@ class PlaylistApiView(APIView):
         """
         try:
             query_params = request.query_params
-            platform: ClientEnum = query_params["platform"]
+            platform = ClientEnum(query_params["platform"])
+            redirect_uri = request.query_params["redirect_uri"]
             music_client = Client.get_client(platform)
-            playlists = music_client.get_playlists(query_params)
+            playlists = music_client.get_playlists(query_params, redirect_uri)
             serialised_playlist = PlaylistSerializer(playlists, many=True)
             return Response({"success": True, "playlists": serialised_playlist.data})
         except Exception as exception:
@@ -47,10 +48,9 @@ class PlaylistApiView(APIView):
             playlists_data = request_data["playlists"]
             playlists = PlaylistSerializer(data=playlists_data, many=True)
             if playlists.is_valid():
-                music_client = Client.get_client(request_data["context"]["platform"])
-                created_playists = music_client.create_playlists(
-                    request_data, playlists
-                )
+                platform = ClientEnum(request_data["context"]["platform"])
+                music_client = Client.get_client(platform)
+                created_playists = music_client.create_playlists(request_data, playlists)
                 return Response({"success": True, "playlists": created_playists})
             raise BadRequestException("`playlists` object in request is invalid")
         except Exception as exception:
@@ -65,12 +65,13 @@ class AuthorizationRedirectView(APIView):
     @request_validator("getAuth")
     def get(self, request, format=None):
         """
-        Initiate authentication and redirect
+        Initialise and return platform account authentication url.
         """
         try:
-            platform: ClientEnum = request.query_params["platform"]
+            platform = ClientEnum(request.query_params["platform"])
+            redirect_uri = request.query_params["redirect_uri"]
             music_client = Client.get_client(platform)
-            url = music_client.get_authorization_url()
-            return redirect(url)
+            url = music_client.get_authorization_url(redirect_uri)
+            return Response({"success": True, "auth_url": url})
         except Exception as exception:
             return get_exception_response(exception)

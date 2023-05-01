@@ -29,4 +29,5 @@ def get_exception_response(exception: Exception):
         response.status_code = HTTP_401_UNAUTHORIZED
     else:
         response.status_code = HTTP_500_INTERNAL_SERVER_ERROR
+        raise exception
     return response
