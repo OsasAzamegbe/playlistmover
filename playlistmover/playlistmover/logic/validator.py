@@ -1,7 +1,7 @@
 import functools
 from typing import Any, Dict, List
 
-from playlistmover.playlistmover.utils.exceptions import (
+from playlistmover.playlistmover.logic.exceptions import (
     BadRequestException,
     get_exception_response,
 )
@@ -13,19 +13,21 @@ def is_valid_request(request_name: str, request) -> str:
     data: Dict[str, Any] = request.data
     invalid_fields: List[str] = []
 
-    def check_field(field: str, object: Dict[str, Any]):
+    def check_field(object: Dict[str, Any], field: str):
         if field not in object:
             invalid_fields.append(field)
 
+    def check_fields(object: Dict[str, Any], *fields: tuple[str]):
+        for field in fields:
+            check_field(object, field)
+
     if request_name == "getPlaylists":
-        for field in ("platform", "code", "state"):
-            check_field(field, query_params)
+        check_fields(query_params, "platform", "code", "state", "redirect_uri")
     elif request_name == "postPlaylists":
-        for field in ("playlists", "context"):
-            check_field(field, data)
-        check_field("platform", data.get("context", {}))
+        check_fields(data, "playlists", "context")
+        check_field(data.get("context", {}), "platform")
     elif request_name == "getAuth":
-        check_field("platform", query_params)
+        check_fields(query_params, "platform", "redirect_uri")
 
     return ", ".join(invalid_fields)
 

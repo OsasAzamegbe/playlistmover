@@ -4,14 +4,14 @@ import requests
 from requests.models import PreparedRequest
 from rest_framework.status import HTTP_200_OK
 
-from playlistmover.playlistmover.utils.clients_enums import ClientEnum
+from playlistmover.playlistmover.logic.clients_enums import ClientEnum
 from playlistmover.playlistmover.models import Playlist, Song
 from playlistmover.playlistmover.serializers import PlaylistSerializer
-from playlistmover.playlistmover.utils.exceptions import (
+from playlistmover.playlistmover.logic.exceptions import (
     BadRequestException,
     UnauthorizedException,
 )
-from playlistmover.playlistmover.utils.utils import encode_string_base64
+from playlistmover.playlistmover.logic.utils import encode_string_base64
 
 
 class Client:
@@ -65,7 +65,6 @@ class SpotifyClient(Client):
 
     def __init__(self):
         self.state = "123456789abcdefg"
-        self.redirect_uri = "http://127.0.0.1:8000/api/playlists?platform=SPOTIFY"
         self.access_token = self.refresh_token = ""
         self.headers = {}
         super().__init__()
@@ -77,11 +76,13 @@ class SpotifyClient(Client):
         """
         return uri.split(":")[-1]
 
-    def get_playlists(self, context: Dict[str, str]) -> List[Playlist]:
+    def get_playlists(
+        self, context: Dict[str, str], redirect_uri: str
+    ) -> List[Playlist]:
         """
         Get list of playlists from Spotify account
         """
-        self._setup_auth_tokens(context)
+        self._setup_auth_tokens(context, redirect_uri)
         user_id = self._get_user_id()
         endpoint = "https://api.spotify.com/v1/users/{}/playlists".format(user_id)
         params = {"limit": 50}
@@ -101,7 +102,7 @@ class SpotifyClient(Client):
         print(playlists.create(playlists.validated_data))
         return playlists.validated_data
 
-    def get_authorization_url(self) -> str:
+    def get_authorization_url(self, redirect_uri: str) -> str:
         """
         Initialize authentication of user through Spotify
         """
@@ -114,13 +115,13 @@ class SpotifyClient(Client):
             "response_type": "code",
             "client_id": client_id,
             "scope": scope,
-            "redirect_uri": self.redirect_uri,
+            "redirect_uri": redirect_uri,
             "state": self.state,
         }
         req_builder.prepare_url(url, params)
         return req_builder.url
 
-    def _setup_auth_tokens(self, context: Dict[str, str]):
+    def _setup_auth_tokens(self, context: Dict[str, str], redirect_uri: str):
         """
         get authentication options after setting up initial authentication with Spotify
         """
@@ -136,7 +137,7 @@ class SpotifyClient(Client):
         request_data = {
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": self.redirect_uri,
+            "redirect_uri": redirect_uri,
         }
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -150,7 +151,7 @@ class SpotifyClient(Client):
             or "access_token" not in response_json
             or "refresh_token" not in response_json
         ):
-            raise UnauthorizedException("User is unauthorized.")
+            raise UnauthorizedException("User is unauthorized.", response_json)
         self.access_token = response_json["access_token"]
         self.refresh_token = response_json["refresh_token"]
         self.headers = {
@@ -182,7 +183,10 @@ class SpotifyClient(Client):
         response_json = response.json()
         songs: List[Song] = []
         for song in response_json["tracks"]["items"]:
-            artists = [artist["name"] for artist in song["track"]["artists"]]
+            if not song or not song.get("track"):
+                continue
+            # print(song, "\n", "\n")
+            artists = [artist.get("name") for artist in song["track"].get("artists")]
             song_title = song["track"]["name"]
             songs.append(Song(song_title, artists))
         playlist = Playlist(playlist_title, songs)
