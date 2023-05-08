@@ -174,7 +174,6 @@ class SpotifyClient(Client):
         """
         Create a `Playlist` object from the playlist data
         """
-
         playlist_title = playlist_data["name"]
         playlist_id = playlist_data["id"]
         endpoint = "https://api.spotify.com/v1/playlists/{}".format(playlist_id)
