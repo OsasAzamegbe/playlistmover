@@ -157,7 +157,6 @@ class SpotifyClient(Client):
         """
         Retrieve user_id from profile of Spotify user
         """
-
         response = self.send_get_request("https://api.spotify.com/v1/me", headers=self.headers)
         user_id = self._get_id_from_uri(response.json()["uri"])
         return user_id
@@ -166,11 +165,11 @@ class SpotifyClient(Client):
         """
         Create a `Playlist` object from the playlist data
         """
-
         playlist_title = playlist_data["name"]
         playlist_id = playlist_data["id"]
         endpoint = "https://api.spotify.com/v1/playlists/{}".format(playlist_id)
         params = {"fields": "images,tracks.items(track(name,artists(name),album(images)))"}
+        params = {"fields": "tracks.items(track(name,artists))"}
         response = self.send_get_request(endpoint, params=params, headers=self.headers)
         response_json = response.json()
         songs: List[Song] = []
