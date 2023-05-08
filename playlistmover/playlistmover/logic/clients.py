@@ -31,7 +31,9 @@ class Client:
         """
         Send HTTP GET request to API endpoint
         """
-        return requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers)
+        return requests.get(
+            "{}{}".format(self.base_url, endpoint), params=params, headers=headers
+        )
 
     def send_post_request(
         self,
@@ -74,7 +76,9 @@ class SpotifyClient(Client):
         """
         return uri.split(":")[-1]
 
-    def get_playlists(self, context: Dict[str, str], redirect_uri: str) -> List[Playlist]:
+    def get_playlists(
+        self, context: Dict[str, str], redirect_uri: str
+    ) -> List[Playlist]:
         """
         Get list of playlists from Spotify account
         """
@@ -89,7 +93,9 @@ class SpotifyClient(Client):
         ]
         return playlists
 
-    def create_playlists(self, request, playlists: PlaylistSerializer) -> List[Dict[str, Any]]:
+    def create_playlists(
+        self, request, playlists: PlaylistSerializer
+    ) -> List[Dict[str, Any]]:
         """
         Create list of playlists on Spotify account
         """
@@ -158,7 +164,9 @@ class SpotifyClient(Client):
         Retrieve user_id from profile of Spotify user
         """
 
-        response = self.send_get_request("https://api.spotify.com/v1/me", headers=self.headers)
+        response = self.send_get_request(
+            "https://api.spotify.com/v1/me", headers=self.headers
+        )
         user_id = self._get_id_from_uri(response.json()["uri"])
         return user_id
 
@@ -170,17 +178,25 @@ class SpotifyClient(Client):
         playlist_title = playlist_data["name"]
         playlist_id = playlist_data["id"]
         endpoint = "https://api.spotify.com/v1/playlists/{}".format(playlist_id)
-        params = {"fields": "images,tracks.items(track(name,artists(name),album(images)))"}
+        params = {
+            "fields": "images,tracks.items(track(name,artists(name),album(images)))"
+        }
         response = self.send_get_request(endpoint, params=params, headers=self.headers)
         response_json = response.json()
         songs: List[Song] = []
         for song in response_json["tracks"]["items"]:
             if not song or not song.get("track"):
                 continue
-            artists = [artist.get("name", "") for artist in song["track"].get("artists", [])]
+            artists = [
+                artist.get("name", "") for artist in song["track"].get("artists", [])
+            ]
             song_title = song["track"]["name"]
             songs.append(
-                Song(song_title, artists, song["track"].get("album", {}).get("images", []))
+                Song(
+                    song_title,
+                    artists,
+                    song["track"].get("album", {}).get("images", []),
+                )
             )
         playlist = Playlist(playlist_title, songs, response_json.get("images", []))
         return playlist
