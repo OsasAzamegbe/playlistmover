@@ -1,7 +1,15 @@
 from typing import List
 from rest_framework import serializers
 
-from playlistmover.playlistmover.models import Playlist, Song
+
+class ImageSerializer(serializers.Serializer):
+    """
+    Serializer class for the Image object
+    """
+
+    url = serializers.CharField(max_length=200)
+    height = serializers.IntegerField(default=0)
+    width = serializers.IntegerField(default=0)
 
 
 class SongSerializer(serializers.Serializer):
@@ -11,6 +19,7 @@ class SongSerializer(serializers.Serializer):
 
     title = serializers.CharField(max_length=200)
     artists = serializers.ListField(child=serializers.CharField(max_length=200))
+    images = ImageSerializer(many=True)
 
 
 class PlaylistSerializer(serializers.Serializer):
@@ -20,8 +29,4 @@ class PlaylistSerializer(serializers.Serializer):
 
     title = serializers.CharField(max_length=200)
     songs = SongSerializer(many=True)
-
-    def create(self, validated_data):
-        songs: List[Song] = validated_data["songs"]
-        songs = [Song(**song) for song in songs]
-        return Playlist(title=validated_data["title"], songs=songs)
+    images = ImageSerializer(many=True)

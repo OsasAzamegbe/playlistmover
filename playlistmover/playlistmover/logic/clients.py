@@ -174,20 +174,28 @@ class SpotifyClient(Client):
         """
         Create a `Playlist` object from the playlist data
         """
-
         playlist_title = playlist_data["name"]
         playlist_id = playlist_data["id"]
         endpoint = "https://api.spotify.com/v1/playlists/{}".format(playlist_id)
-        params = {"fields": "tracks.items(track(name,artists))"}
+        params = {
+            "fields": "images,tracks.items(track(name,artists(name),album(images)))"
+        }
         response = self.send_get_request(endpoint, params=params, headers=self.headers)
         response_json = response.json()
         songs: List[Song] = []
         for song in response_json["tracks"]["items"]:
             if not song or not song.get("track"):
                 continue
-            # print(song, "\n", "\n")
-            artists = [artist.get("name") for artist in song["track"].get("artists")]
+            artists = [
+                artist.get("name", "") for artist in song["track"].get("artists", [])
+            ]
             song_title = song["track"]["name"]
-            songs.append(Song(song_title, artists))
-        playlist = Playlist(playlist_title, songs)
+            songs.append(
+                Song(
+                    song_title,
+                    artists,
+                    song["track"].get("album", {}).get("images", []),
+                )
+            )
+        playlist = Playlist(playlist_title, songs, response_json.get("images", []))
         return playlist

@@ -2,7 +2,18 @@
 State models for objects used by this service
 """
 from dataclasses import dataclass
-from typing import List
+from typing import Optional
+
+
+@dataclass
+class Image:
+    """
+    Image object
+    """
+
+    url: str
+    height: Optional[int]
+    width: Optional[int]
 
 
 @dataclass
@@ -12,7 +23,8 @@ class Song:
     """
 
     title: str
-    artists: List[str]
+    artists: list[str]
+    images: list[Image]
 
 
 @dataclass
@@ -22,4 +34,5 @@ class Playlist:
     """
 
     title: str
-    songs: List[Song]
+    songs: list[Song]
+    images: list[Image]
